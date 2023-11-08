@@ -1,2 +1,2 @@
 * linguist-vendored
-*.script linguist-vendored=false
+*.go linguist-vendored=false
