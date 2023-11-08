@@ -1,0 +1,243 @@
+function updateFile(self)
+	file = io.open("individualTowerInfo.txt", "w")
+	file:write(self.towerType)
+	file:write("\n".. self.towerValue)
+	file:write("\n".. self.rangeLevel)
+	file:write("\n".. self.rangeUpgradePrice)
+	file:write("\n".. self.strengthLevel)
+	file:write("\n".. self.strengthUpgradePrice)
+	file:write("\n".. self.frequencyLevel)
+	file:write("\n".. self.frequencyUpgradePrice)
+	file:close() 
+
+	msg.post("/gameplay gui#gameplay system", "open_tower_options")
+end
+
+function updateStrength(self, towerStrength)
+	local towerStrengthFile = io.open("towerAttack.txt", "w")
+	towerStrengthFile:write(self.towerStrength)
+	towerStrengthFile:close()
+end
+
+function updateRange(self, towerRange)
+	local towerRangeFile = io.open("towerRange.txt", "w")
+	towerRangeFile:write(self.towerRange)
+	towerRangeFile:close()
+end
+
+function pointWithinTowerPlacement(pointX, pointY, squareX, squareY)
+	-- Calculating half of the square's width and height
+	local widthHalf = 50
+	local heightHalf = 50
+
+	-- If the x and y co-ords of the click occured within the boundaries of the square --
+
+	-- The boundary left and right of the square's center
+	if(pointX >= (squareX - widthHalf)) and (pointX <= (squareX + widthHalf)) then
+		-- The boundary up and below the square 
+		if(pointY >= (squareY - heightHalf)) and (pointY <= (squareY + heightHalf)) then
+			return true  -- The click occured in the square
+		end
+	end
+	return false  -- The click occured outside the square
+end
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	self.zombieInRange = false
+	
+	self.timer = 0
+
+	self.towerValue = ""
+	self.towerType = ""
+	
+	-- Levels --
+	self.strengthLevel = 0
+	self.frequencyLevel = 0
+	self.rangeLevel = 0
+
+	-- Upgrade price -- 
+	self.strengthUpgradePrice = 100
+	self.frequencyUpgradePrice = 100
+	self.rangeUpgradePrice = 100
+
+
+end
+
+local function upgradeTowerSkill(self, skillToUpgrade)
+
+	if(skillToUpgrade == "range") then
+		-- Increments the level for the specified skill --
+		self.rangeLevel = self.rangeLevel + 1
+		-- Adds to the tower's value --
+		self.towerValue = self.towerValue + math.floor(self.rangeUpgradePrice * 0.2)
+		-- Increases price to upgrade skill --
+		self.rangeUpgradePrice = math.floor(self.rangeUpgradePrice * 3)
+		
+		-- Affects actual skill -------
+		self.towerRange = self.towerRange + 50
+		updateRange(self, self.towerRange)
+		print("Range has been upgraded")
+		
+	elseif(skillToUpgrade == "strength") then
+		-- Increments the level for the specified skill --
+		self.strengthLevel = self.strengthLevel + 1
+		-- Adds to the tower's value --
+		self.towerValue = self.towerValue + math.floor(self.strengthUpgradePrice * 0.2)
+		-- Increases price to upgrade skill --
+		self.strengthUpgradePrice = math.floor(self.strengthUpgradePrice * 3)
+		
+		-- Affects actual skill --
+		self.towerStrength = self.towerStrength + 5
+		updateStrength(self, self.towerStrength)
+		
+		print("Strength has been upgraded")
+	elseif(skillToUpgrade == "frequency") then
+		-- Increments the level for the specified skill --
+		self.frequencyLevel = self.frequencyLevel + 1
+		-- Adds to the tower's value --
+		self.towerValue = self.towerValue + math.floor(self.frequencyUpgradePrice * 0.2)
+		-- Increases price to upgrade skill --
+		self.frequencyUpgradePrice = math.floor(self.frequencyUpgradePrice * 3)
+		
+		-- Affects actual skill --
+		print("Frequency has been upgraded")
+		self.towerFrequency = self.towerFrequency - 0.5
+		
+	end
+
+	-- Writes new information to file -- 
+	updateFile(self)
+
+	-- Sends a message to gui to update information -- 
+	msg.post("/gameplay gui#gameplay system", "update_tower_stats")
+
+end
+
+function on_message(self, message_id, message, sender)
+
+	-- Setting up game object --
+	if(message_id == hash("missile")) then
+		
+		-- Sets tower attributes --
+		self.towerType = "Missile"
+		self.towerValue = 0
+		self.towerStrength = 100
+		self.towerFrequency = 8.0
+		self.towerRange = 300
+		updateRange(self, self.towerRange)
+		updateStrength(self, self.towerStrength)
+		
+		-- Sets tower sprite --
+		sprite.play_flipbook(".", "missile sprite")
+		
+	elseif(message_id == hash("rifle")) then
+		
+		-- Sets tower attributes --
+		self.towerType = "Rifle"
+		self.towerValue = 0
+		self.towerStrength = 50
+		self.towerFrequency = 5.0
+		self.towerRange = 300
+		updateRange(self, self.towerRange)
+		updateStrength(self, self.towerStrength)
+		
+		-- Sets tower sprite --
+		sprite.play_flipbook(".", "rifle sprite")
+		
+	elseif(message_id == hash("smg")) then
+		
+		-- Sets tower attributes --
+		self.towerType = "Smg"
+		self.towerValue = 0
+		self.towerStrength = 20
+		self.towerFrequency = 4.0
+		self.towerRange = 300
+		updateRange(self, self.towerRange)
+		updateStrength(self, self.towerStrength)
+		
+		-- Sets tower sprite --
+		sprite.play_flipbook(".", "smg sprite")
+	end
+
+	-- Message to upgrade range --
+	if(message_id == hash("upgrade_range")) then
+		upgradeTowerSkill(self, "range")
+		
+	-- Message to upgrade frequency --
+	elseif(message_id == hash("upgrade_frequency")) then
+		upgradeTowerSkill(self, "frequency")
+		
+	-- Message to upgrade strength --
+	elseif(message_id == hash("upgrade_strength")) then
+		upgradeTowerSkill(self, "strength")
+	end
+
+	if(message_id == hash("sell_tower")) then
+		go.delete(".")
+	end
+
+	if(message_id == hash("zombie_in_range")) then
+		self.zombieInRange = true
+	elseif(message_id == hash("zombie_not_in_range")) then
+		self.zombieInRange = false
+	end
+	
+end
+
+
+function on_input(self, action_id, action)
+	local goCoordinates = go.get_world_position(".")
+	-- When user clicks
+	if(action_id == hash("click") and action.pressed) then 
+		local goCoordinates = go.get_world_position(".")
+		local xPoint = goCoordinates.x
+		local yPoint = goCoordinates.y
+		
+		-- If the click occurs within the bounds of the square - its tower placement pad --
+		if(pointWithinTowerPlacement(action.x, action.y, xPoint, yPoint)) then
+			print("update specific tower")
+			-- Writes the tower's information to file --
+			updateFile(self)
+
+			-- Send a message to open tower options menu --
+			msg.post("/gameplay gui#gameplay system", "open_tower_options")
+			
+		end
+	end
+
+end
+
+function update(self, dt)
+	msg.post("/script#game", "tower_active")
+	
+	-- Start timer --
+	-- The variable self.timer stores the time elapsed
+	self.timer = self.timer + dt
+
+	-- The variable seconds stores number of seconds elapsed
+	self.seconds = math.floor(self.timer)
+
+	-- -- Every few seconds - Dependent on the tower's frequency --
+
+	if(self.seconds == math.floor(self.towerFrequency)) then
+		print("shoot")
+		print("frequency is " .. self.towerFrequency)
+		self.timer = 0  -- Resets the timer so this code will only run once
+
+		-- If there is a zombie in its range -- 
+		if(self.zombieInRange == true) then
+			msg.post("/script#game", "attack_zombie")
+			sound.play("#sound")
+			print("Tower attack zombie")
+		end
+		
+		
+	end
+end
+
+
+
+
+
+

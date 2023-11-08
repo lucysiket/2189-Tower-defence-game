@@ -1,0 +1,82 @@
+-- Opens a component --
+function openComponent(self, component)
+	msg.post(component, "load")
+end
+
+-- Closes a component --
+function closeComponent(self, component)  
+	msg.post(component, "final")
+	msg.post(component, "disable")
+	msg.post(component, "unload")
+end
+
+
+function on_message(self, message_id, message, sender)
+	-- When a proxy is sent a message to 'load' it will return the message proxy_loaded
+	if(message_id == hash("proxy_loaded")) then
+		-- Enabling the proxy component
+		msg.post(sender, "init")
+		msg.post(sender, "enable")
+
+		if(pauseMenuOpened == true) then  
+			-- When the proxy_loaded message is received, this script will send a message to the loader to
+			-- open the pause menu
+			print("Sending message to laoder to pause game")
+			msg.post("loader:/loader#loader", "pause_game")
+		end
+
+		if(startupMenuOpened == true) then  
+			-- When the proxy_loaded message is received, this script will send a message to the loader to
+			-- open thestartup
+			msg.post("loader:/loader#loader", "open_startup")
+		end
+		
+	end
+
+		
+	-- Open loader
+	if(message_id == hash("open_loader")) then
+		pauseMenuOpened = false  
+		gameOpened = false  
+		startupMenuOpened = false
+		guiOpened = true 
+		closeComponent(self,  "/Collections#game collection proxy")
+		openComponent(self, "/Collections#loader proxy")
+		
+	-- Open game
+	elseif(message_id == hash("open_game")) then
+		pauseMenuOpened = false 
+		guiOpened = false 
+		startupMenuOpened = false 
+		gameOpened = true  
+		closeComponent(self, "/Collections#loader proxy")
+		openComponent(self, "/Collections#game collection proxy")
+		
+	-- Pauses game
+	elseif(message_id == hash("pause_game")) then 
+		gameOpened = false   
+		guiOpened = false 
+		startupMenuOpened = false
+		pauseMenuOpened = true  
+		openComponent(self, "/Collections#loader proxy")
+		closeComponent(self,  "/Collections#game collection proxy")
+
+	-- Opens startup menu
+	elseif(message_id == hash("open_startup_menu")) then
+		gameOpened = false   
+		guiOpened = false 
+		pauseMenuOpened = false 
+		startupMenuOpened = true
+
+		openComponent(self, "/Collections#loader proxy")
+		closeComponent(self,  "/Collections#game collection proxy")
+
+	end
+
+end
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	msg.post(".", "open_game")
+
+end

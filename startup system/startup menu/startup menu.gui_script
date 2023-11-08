@@ -1,0 +1,92 @@
+function getUsername(self)
+	io.input("currentAccount.txt")
+	local accountLineNum = 0
+	for line in io.lines() do
+		accountLineNum = accountLineNum + 1
+		if(accountLineNum == 1) then
+			return line
+		end
+	end
+end
+
+function getPassword(self)
+	io.input("currentAccount.txt")
+	local accountLineNum = 0
+	for line in io.lines() do
+		accountLineNum = accountLineNum + 1
+		if(accountLineNum == 2) then
+			return line
+		end
+	end
+end
+
+function getHighscore(self)
+	io.input("currentAccount.txt")
+	local accountLineNum = 0
+	for line in io.lines() do
+		accountLineNum = accountLineNum + 1
+		if(accountLineNum == 3) then
+			print(line)
+			return line
+		end
+	end
+end
+
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	username = getUsername(self)
+	password = getPassword(self)
+	highscore = getHighscore(self)
+
+
+end
+
+function on_input(self, action_id, action)
+
+	-- Exit game button --
+	if(action_id == hash("click") and action.released == true) then
+		local exit = gui.get_node("exit")        -- Gets the node for the exit game button and saves it to a variable
+		if(gui.pick_node(exit,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the exit game button
+			os.exit()  -- Closes the program
+		end
+	end
+
+	-- Logout button --
+	if(action_id == hash("click") and action.released == true) then
+		local logout = gui.get_node("logout")        -- Gets the node for the logout button and saves it to a variable
+		if(gui.pick_node(logout,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the logout button
+			msg.post("/login menu#login menu", "logout") -- Tells login mneu to reset variables
+			msg.post("/loader#loader", "open_login")  -- Opens login menu
+		end
+	end
+
+	-- Play now button -- 
+	if(action_id == hash("click") and action.released == true) then
+		local playnow = gui.get_node("playnow")        -- Gets the node for the play now button and saves it to a variable
+		if(gui.pick_node(playnow,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the play now button
+			msg.post("/loader#loader", "open_game_options")-- Opens game options menu
+		end
+	end
+
+	
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("change_user_details") then
+		username = getUsername(self)
+		password = getPassword(self)
+		highscore = getHighscore(self)
+
+		-- Sets welcome text
+		local welcomeMessageTextNode = gui.get_node("welcome back")   -- Gets node for welcome back text and saves to a variable
+		local userWelcomeMsg = "Welcome back " .. username
+		gui.set_text(welcomeMessageTextNode, userWelcomeMsg)          -- Changes it to include players username
+
+		-- Sets highscore text
+		local highscoreTextNode = gui.get_node("highscore")
+		local highscoreMsg = "Highscore: " .. highscore
+		gui.set_text(highscoreTextNode, highscoreMsg)
+	end
+end
+

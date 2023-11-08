@@ -1,0 +1,66 @@
+function pointWithinTowerPlacement(pointX, pointY, squareX, squareY)
+	-- Calculating half of the square's width and height
+	local widthHalf = 50
+	local heightHalf = 50
+
+	-- If the x and y co-ords of the click occured within the boundaries of the square --
+
+	-- The boundary left and right of the square's center
+	if(pointX >= (squareX - widthHalf)) and (pointX <= (squareX + widthHalf)) then
+		-- The boundary up and below the square 
+		if(pointY >= (squareY - heightHalf)) and (pointY <= (squareY + heightHalf)) then
+			return true  -- The click occured in the square
+		end
+	end
+	return false  -- The click occured outside the square
+end
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+end
+
+function on_input(self, action_id, action)
+
+	-- Gets the co-ordinates of the tower placement pad - used to uniquely identify it
+	local goCoordinates = go.get_world_position(".")
+
+	-- When user clicks
+	if(action_id == hash("click") and action.pressed) then 
+		-- If the click occurs within the bounds of the square --
+		if(pointWithinTowerPlacement(action.x, action.y, goCoordinates.x, goCoordinates.y)) then
+			--print("You clicked within tower" .. goCoordinates.x .. goCoordinates.y)
+			
+			-- If a purchase is in process
+			if(purchaseInProcess == true) then
+				-- Send a message to the gameplay gui saying purchase complete
+				msg.post("/gameplay gui#gameplay system", "purchase_complete")
+			end
+		end
+	end
+end
+
+
+function on_message(self, message_id, message, sender)
+
+	-- If the tower placement pad receives a message saying to place a tower
+	-- Of a specific type
+	if(message_id == hash("place_missile")) then
+		-- Send a message to the game script to place a missile
+		-- At the vector of the tower placement pad
+		msg.post("/script#game", "place_missile")
+	elseif(message_id == hash("place_smg")) then
+		-- Send a message to the game script to place a smg
+		-- At the vector of the tower placement pad
+		msg.post("/script#game", "place_smg")
+	elseif(message_id == hash("place_rifle")) then
+		-- Send a message to the game script to place a rifle
+		-- At the vector of the tower placement pad
+		msg.post("/script#game", "place_rifle")
+	end
+
+
+end
+
+
+
+

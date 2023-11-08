@@ -1,0 +1,108 @@
+-- Functions ---------------------------------------------------------------
+-- Show menu function --
+local function show_menu(self, url)
+	msg.post(url, "enable")   -- Sends message to menu gui to enable
+end
+-- Hide  menu function --
+local function hide_menu(self, url)
+	msg.post(url, "disable")    -- Sends message to menu gui to disable
+end
+
+-- Upon initilisation --------------------------------------------------------
+function init(self) 
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	-- Iteration one
+	--hide_menu(self, "/login menu#login menu")   -- Hides all guis
+	--hide_menu(self, "/signup menu#signup menu")
+	-- Iteration two
+	--hide_menu(self, "/startup menu#startup menu")
+	--hide_menu(self, "/game options menu#game options menu")
+	--hide_menu(self, "/map selection menu#map selection menu")
+	-- Iteration three
+	--hide_menu(self, "/game#game")
+	--hide_menu(self, "/pause menu#pause menu")
+
+	--msg.post("/loader#loader", "open_game_options")
+	
+end
+
+
+-- On message -----------------------------------------------------------
+function on_message(self, message_id, message, sender)
+	if message_id == hash("open_login") then        -- If message is to 'open_login': close all open gui's and open the login gui
+		hide_menu(self, "/login menu#login menu")   
+		hide_menu(self, "/signup menu#signup menu")
+		hide_menu(self, "/game options menu#game options menu")
+		hide_menu(self, "/game#game")
+		hide_menu(self, "/pause menu#pause menu")
+		hide_menu(self, "/map selection menu#map selection menu")
+		hide_menu(self, "/startup menu#startup menu")
+	
+		show_menu(self, "/login menu#login menu")
+	end
+	if message_id == hash("open_signup") then        -- If message is to 'open_signup': close the login gui and open the signup gui
+		hide_menu(self, "/login menu#login menu")   
+		hide_menu(self, "/signup menu#signup menu")
+		hide_menu(self, "/game options menu#game options menu")
+		hide_menu(self, "/game#game")
+		hide_menu(self, "/pause menu#pause menu")
+		hide_menu(self, "/map selection menu#map selection menu")
+		hide_menu(self, "/startup menu#startup menu")
+	
+		show_menu(self, "/signup menu#signup menu")
+	end
+	if message_id == hash("open_startup") then        -- If message is to 'open_startup': close any open gui's and open the startup menu gui
+		hide_menu(self, "/game options menu#game options menu") 
+		hide_menu(self, "/login menu#login menu") 
+		hide_menu(self, "/map selection menu#map selection menu") 
+		hide_menu(self, "/pause menu#pause menu") 
+		hide_menu(self, "/signup menu#signup menu") 
+		hide_menu(self, "/startup menu#startup menu") 
+		print("open startup")
+		show_menu(self, "/startup menu#startup menu")
+
+		msg.post("/startup menu#startup menu", "change_user_details")
+	end
+	if message_id == hash("open_game_options") then   -- If message is to 'open_game_options': close any open gui's and open game options menu gui
+		hide_menu(self, "/login menu#login menu")   
+		hide_menu(self, "/signup menu#signup menu")
+		hide_menu(self, "/game options menu#game options menu")
+		hide_menu(self, "/game#game")
+		hide_menu(self, "/pause menu#pause menu")
+		hide_menu(self, "/map selection menu#map selection menu")
+		hide_menu(self, "/startup menu#startup menu")
+		
+		show_menu(self, "/game options menu#game options menu")
+		msg.post("/game options menu#game options menu", "display_info")
+		
+	end
+	if message_id == hash("open_map_selection") then  -- If message is to 'open_map_selection': close any open gui's and open map selection menu gui
+		hide_menu(self, "/login menu#login menu")   
+		hide_menu(self, "/signup menu#signup menu")
+		hide_menu(self, "/game options menu#game options menu")
+		hide_menu(self, "/game#game")
+		hide_menu(self, "/pause menu#pause menu")
+		hide_menu(self, "/map selection menu#map selection menu")
+		hide_menu(self, "/startup menu#startup menu")
+
+		show_menu(self, "/map selection menu#map selection menu")
+	end
+	
+	if message_id == hash("open_game") then   -- If message is to 'open_game': close game options menu and launch game
+		msg.post("main:/Collections#main collection", "open_game")
+	end
+
+	if message_id == hash("pause_game") then   -- If message is to 'pause_game': the pause menu is opened
+		print("running pause game message in loader")
+
+		hide_menu(self, "/game options menu#game options menu") 
+		hide_menu(self, "/login menu#login menu") 
+		hide_menu(self, "/map selection menu#map selection menu") 
+		hide_menu(self, "/pause menu#pause menu") 
+		hide_menu(self, "/signup menu#signup menu") 
+		hide_menu(self, "/startup menu#startup menu") 
+
+		show_menu(self, "/pause menu#pause menu")
+	end
+
+end

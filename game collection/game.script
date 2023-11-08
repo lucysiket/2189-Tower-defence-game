@@ -1,0 +1,249 @@
+
+
+local function spawnZombie(self, type)
+	local pos = vmath.vector3(-50, 150, 0)   --Spawns a zombie at these co-ordinates outside of the game's view
+	zombie = factory.create("/zombies#zombie factory", pos) -- Creates an instance of a zombie
+	msg.post(zombie, type)
+end
+
+function init(self)
+	msg.post("/game over menu", "disable")
+	msg.post(".", "acquire_input_focus")
+	self.timer = 0
+	self.seconds = 0
+	self.roundTimer = 0
+	towerToPlace = ""
+
+	tower1Spawned = false
+	tower2Spawned = false
+	tower3Spawned = false
+	tower4Spawned = false
+	tower5Spawned = false
+
+	-- Getting position vectors --
+	towerPosition1 = vmath.vector3(120, 259, 1)
+	towerPosition2 = vmath.vector3(375, 429, 1)
+	towerPosition3 = vmath.vector3(655, 181, 1)
+	towerPosition4 = vmath.vector3(951, 484, 1)
+	towerPosition5 = vmath.vector3(1161, 308, 1)
+	
+	-- Spawning many instances of tower placement pads -----------------------------------------------
+	towerPlacementPad1 = factory.create("/tower placement#tower placement", towerPosition1)
+	towerPlacementPad2 = factory.create("/tower placement#tower placement", towerPosition2)
+	towerPlacementPad3 = factory.create("/tower placement#tower placement", towerPosition3)
+	towerPlacementPad4 = factory.create("/tower placement#tower placement", towerPosition4)
+	towerPlacementPad5 = factory.create("/tower placement#tower placement", towerPosition5)
+	-------------------------------------------------------------------------------------------------
+	
+	-- Spawning an instance of a zombie object for testing
+	spawnZombie(self, "normal")
+
+end
+
+function zombieWithinTowerRange(self, towerX, towerY, zombieX, zombieY)
+	-- Gets tower's range from file
+	io.input("towerRange.txt")   -- Opens the file in read mode
+	towersRange = tonumber(io.read())
+	io.close()
+
+	rangeHalf = towersRange / 2
+	-- If the x and y co-ords of the click occured within the boundaries of the square --
+
+	-- The boundary left and right of the square's center
+	if(zombieX >= (towerX - rangeHalf)) and (zombieX <= (towerX + rangeHalf)) then
+		-- The boundary up and below the square 
+		if(zombieY >= (towerY - rangeHalf)) and (zombieY <= (towerY + rangeHalf)) then
+			return true  -- The zombie is within the tower's range
+		end
+	end
+	return false  -- The zombie is not in the tower's range
+end
+
+function on_message(self, message_id, message, sender)
+
+	-- Game over --
+	if(message_id == hash("game_over")) then
+		msg.post("/game over menu", "enable")
+
+		-- Gets the details of the current user --
+		io.input("currentAccount.txt")
+		accountInformation = {}
+		for line in io.lines() do   -- Iterates through the whole file
+			table.insert(accountInformation, line)    -- Adds every line to the table
+		end  -- Closes the file
+
+		for k,v in pairs(accountInformation) do
+			if(k == 1) then
+				currentUsername = v
+			elseif(k == 2) then
+				currentPassword = v
+			elseif(k == 3) then
+				currentHighscore = v
+			end
+		end
+		
+		-- Validates whether the new score is higher than the high score --
+		newScore = tonumber(((roundNumber - 1) * 60) .. self.seconds)
+		if(newScore > currentHighscore)then
+			-- Writes the new highscore to file --
+			local file = io.open("currentAccount.txt", "w")
+			file:write(currentUsername)
+			file:write("\n".. currentPassword)
+			file:write("\n" .. newHighscore)
+			file:close() 
+		end
+
+		
+	end
+
+	-- Place tower --
+
+	-- The game script may receive messages from tower placement pads that have been clicked
+	-- Asking it to place a tower at that pad
+	if(message_id == hash("place_missile")) then
+		-- Gets the x and y coordinates of the sender (tower placement pad) --
+		local senderPosition = go.get_position(sender)
+		local senderX = senderPosition.x
+		local senderY = senderPosition.y
+
+		-- Spawns a tower at that position --
+		local positionVector = vmath.vector3(senderX, senderY, 1)
+
+		-- Creates an instance of a tower
+		tower = factory.create("/towers#tower factory", positionVector)
+		-- Specifies type of tower
+		msg.post(tower, "missile")
+		
+	elseif(message_id == hash("place_smg")) then
+		-- Gets the x and y coordinates of the sender (tower placement pad) --
+		local senderPosition = go.get_position(sender)
+		local senderX = senderPosition.x
+		local senderY = senderPosition.y
+
+		-- Spawns a tower at that position --
+		local positionVector = vmath.vector3(senderX, senderY, 1)
+
+		-- Creates an instance of a tower
+		tower = factory.create("/towers#tower factory", positionVector)
+		-- Specifies type of tower
+		msg.post(tower, "smg")
+		
+		
+	elseif(message_id == hash("place_rifle")) then
+		-- Gets the x and y coordinates of the sender (tower placement pad) --
+		local senderPosition = go.get_position(sender)
+		local senderX = senderPosition.x
+		local senderY = senderPosition.y
+
+		-- Spawns a tower at that position --
+		local positionVector = vmath.vector3(senderX, senderY, 1)
+
+		-- Creates an instance of a tower
+		tower = factory.create("/towers#tower factory", positionVector)
+		-- Specifies type of tower
+		msg.post(tower, "rifle")
+	
+	end
+
+	if(message_id == hash("zombie_active")) then
+		zombieURL = sender
+	end
+
+	if(message_id == hash("tower_active")) then
+		if(go.get_world_position(sender) == vmath.vector3(120, 259, 1)) then
+			tower1Spawned = true
+			tower1ID = sender
+		elseif(go.get_world_position(sender) == vmath.vector3(375, 429, 1)) then
+			tower2Spawned = true
+			tower2ID = sender
+		elseif(go.get_world_position(sender) == vmath.vector3(655, 181, 1)) then
+			tower3Spawned = true
+			tower3ID = sender
+		elseif(go.get_world_position(sender) == vmath.vector3(951, 484, 1)) then
+			tower4Spawned = true
+			tower4ID = sender
+		elseif(go.get_world_position(sender) == vmath.vector3(1161, 308, 1)) then
+			tower5Spawned = true
+			tower5ID = sender
+		end
+	end	
+
+	-- Handles attacking zombies --
+	if(message_id == hash("attack_zombie")) then
+		msg.post(zombieURL, "get_attacked")
+	end	
+end
+
+function on_input(self, action_id, action)
+
+end
+
+function update(self, dt)
+	-- If the zombie is within the range of any of the towers --
+	zombiePosition = go.get_position(zombieURL)
+	zombieX = zombiePosition.x
+	zombieY = zombiePosition.y
+	
+	if(zombieWithinTowerRange(self, 120, 259, zombieX, zombieY)) and (tower1Spawned == true) then
+		msg.post(tower1ID, "zombie_in_range")
+	elseif(tower1Spawned == true) then
+	--	msg.post(tower1ID, "zombie_not_in_range")
+	end
+	if(zombieWithinTowerRange(self, 375, 429, zombieX, zombieY)) and (tower2Spawned == true) then
+		msg.post(tower2ID, "zombie_in_range")
+	elseif(tower2Spawned == true) then
+		--msg.post(tower2ID, "zombie_not_in_range")
+	end
+	if(zombieWithinTowerRange(self, 655, 181, zombieX, zombieY)) and (tower3Spawned == true) then
+		msg.post(tower3ID, "zombie_in_range")
+	elseif(tower3Spawned == true) then
+		--msg.post(tower3ID, "zombie_not_in_range")
+	end
+	if(zombieWithinTowerRange(self, 951, 484, zombieX, zombieY)) and (tower4Spawned == true) then
+		msg.post(tower4ID, "zombie_in_range")
+	elseif(tower4Spawned == true) then
+		--msg.post(tower4ID, "zombie_not_in_range")
+	end
+	if(zombieWithinTowerRange(self, 1161, 308, zombieX, zombieY)) and (tower5Spawned == true) then
+		msg.post(tower4ID, "zombie_in_range")
+	elseif(tower5Spawned == true) then
+		--msg.post(tower4ID, "zombie_not_in_range")
+	end
+
+	-- Timer -------------------------------------------------------------------
+
+	-- The variable self.timer stores the number of seconds elapsed
+	self.timer = self.timer + dt
+	self.seconds = math.floor(self.timer)
+	self.roundTimer = self.roundTimer + dt
+
+	-- Spawns normal zombies for first 20 seconds -- 
+	if(0 < self.roundTimer) and (self.roundTimer < 20)then   
+		if(self.seconds == (9 - roundNumber)) then
+			spawnZombie(self, "normal")
+			self.timer = 0
+		end
+	end
+
+	-- Spawns quick zombies between 20 and 40 seconds -- 
+	if(20 < self.roundTimer) and (self.roundTimer < 40)then
+		if(self.seconds == (9 - roundNumber)) then
+			spawnZombie(self, "quick")
+			self.timer = 0
+		end
+	end
+
+	-- Spawns strong zombies the last 40 seconds of round --
+	if(40 < self.roundTimer) and (self.roundTimer < 60)then
+		if(self.seconds == (9 - roundNumber)) then
+			spawnZombie(self, "strong")
+			self.timer = 0
+		end
+	end
+
+	-- Resets the round timer once ot reaches 60
+	if(self.roundTimer == 60) then
+		self.roundTimer = 0   
+	end
+end
+

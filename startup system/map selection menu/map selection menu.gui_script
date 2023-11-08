@@ -1,0 +1,316 @@
+-- Gets map titles from file and saves to a variable  -------------
+function getMapTitles(self)
+	io.input("mapDetails.txt")   -- Opens the file in read mode
+	mapTitlesList = {}     -- This table stores map titles
+	local accountLineNum = 0     -- Stores line number
+
+	for line in io.lines() do   -- Iterates through file
+		accountLineNum = accountLineNum + 1  -- Shows progression onto new line
+		if(accountLineNum % 2 ~= 0) then
+			table.insert(mapTitlesList, line)
+		end
+	end 
+
+end
+
+
+-- Writes chosen map to file ---
+function selectMap(self, chosenMap)
+	local file = io.open("selectedMap.txt", "w")
+	file:write(chosenMap)
+	file:close()
+end
+
+
+-- Binary search function --
+function binarySearch(upperbound, lowerbound, searchValue)
+	getMapTitles(self)
+	while(true)
+	do
+		-- Halves the search area
+		local middle = lowerbound + (math.floor((upperbound - lowerbound) / 2))
+		print("Search area was halved")
+		if(upperbound < lowerbound) then
+			print("Item was not found")
+			return -1  -- Item not found
+		else
+			if(mapTitlesList[middle] < searchValue) then
+				lowerbound = middle + 1  -- Item in second search area
+				print("Item in second search area")
+			elseif(mapTitlesList[middle] > searchValue) then
+				upperbound = middle - 1  -- Item in first search area
+				print("Item in first search area")
+			else
+				print("Item found at " .. middle)
+				return middle  -- Item was found
+			end
+		end
+	end
+end
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-- Changes the maps displayed to the user --------------------------
+function changeMaps(self)
+	getMapTitles(self)
+
+	-- Map 1 ------------------------------------------------------------------
+	local firstMapTitleTextNode = gui.get_node("map 1 title")
+	gui.set_text(firstMapTitleTextNode, mapTitlesList[firstMapIndex]) -- Map 1 title
+	
+	local firstMapImage = gui.get_node("map 1 image")
+	if(mapTitlesList[firstMapIndex] == "Wastelands") then   -- Map 1 image
+		gui.set_texture(firstMapImage, "map selection menu")
+		gui.play_flipbook(firstMapImage, "wastelands map")
+	else
+		gui.set_texture(firstMapImage, "map selection menu")
+		gui.play_flipbook(firstMapImage, "locked map")
+	end
+	
+	-- Map 2 --------------------------------------------------------------------------------
+	local secondMapTitleTextNode = gui.get_node("map 2 title")
+	gui.set_text(secondMapTitleTextNode, mapTitlesList[secondMapIndex]) -- Map 2 title
+
+	local secondMapImage = gui.get_node("map 2 image")  -- Map 2 image
+	if(mapTitlesList[secondMapIndex] == "Wastelands") then
+		gui.set_texture(secondMapImage, "map selection menu")
+		gui.play_flipbook(secondMapImage, "wastelands map")
+	else
+		gui.set_texture(secondMapImage, "map selection menu")
+		gui.play_flipbook(secondMapImage, "locked map")
+	end
+	
+	-- Up arrow --
+	local upArrow = gui.get_node("up arrow")
+	if(firstMapIndex == 1) then                  -- Will disable button if at top of list
+		gui.set_enabled(upArrow, false)
+	else
+		gui.set_enabled(upArrow, true)
+	end
+		
+	-- Down arrow --
+	local downArrow = gui.get_node("down arrow")
+	if(secondMapIndex == 10) then     -- Will disable button if at bottom of list
+		gui.set_enabled(downArrow, false)
+	else
+		gui.set_enabled(downArrow, true)
+	end
+end
+
+-- Map display --
+function mapDisplay(self, status)
+	-- Getting nodes --
+	local background = gui.get_node("background")
+	local upArrow = gui.get_node("up arrow")
+	local downArrow = gui.get_node("down arrow")
+	
+	local imageMapOne = gui.get_node("map 1 image")
+	local titleMapOne = gui.get_node("map 1 title")
+	local selectMapOne = gui.get_node("map 1 select")
+
+	local imageMapTwo = gui.get_node("map 2 image")
+	local titleMapTwo = gui.get_node("map 2 title")
+	local selectMapTwo = gui.get_node("map 2 select")
+	
+	if(status == "both maps") then
+		gui.set_enabled(background, true)   -- Display background
+		gui.set_enabled(upArrow, false)   -- Up arrow
+		gui.set_enabled(downArrow, true)   -- Down arrow
+		
+		gui.set_enabled(imageMapOne, true)  -- Map 1 image
+		gui.set_enabled(titleMapOne, true)  -- Map 1 title
+		gui.set_enabled(selectMapOne, true)   -- Map 1 select button
+
+		gui.set_enabled(imageMapTwo, true)  -- Map 2 image
+		gui.set_enabled(titleMapTwo, true)   -- Map 2 title
+		gui.set_enabled(selectMapTwo, true)   -- Map 2 select button
+		
+	elseif(status == "only first map") then
+		gui.set_enabled(background, false)   -- Hide background
+		gui.set_enabled(upArrow, false)   -- Hide up arrow
+		gui.set_enabled(downArrow, false)   -- Hide down arrow
+
+		-- Show map 1 content --------------------------
+		gui.set_enabled(imageMapOne, true)  -- Map 1 image
+		gui.set_enabled(titleMapOne, true)  -- Map 1 title
+		gui.set_enabled(selectMapOne, true)   -- Map 1 select button
+
+		-- Hide map 2 content ----------------------------
+		gui.set_enabled(imageMapTwo, false)  -- Map 2 image
+		gui.set_enabled(titleMapTwo, false)   -- Map 2 title
+		gui.set_enabled(selectMapTwo, false)   -- Map 2 select button
+		
+	elseif(status == "no maps") then
+		gui.set_enabled(background, false)   -- Hide background
+		gui.set_enabled(upArrow, false)   -- Hide up arrow
+		gui.set_enabled(downArrow, false)   -- Hide down arrow
+
+		-- Hide map 1 content --------------------------
+		gui.set_enabled(imageMapOne, false)  -- Map 1 image
+		gui.set_enabled(titleMapOne, false)  -- Map 1 title
+		gui.set_enabled(selectMapOne, false)   -- Map 1 select button
+
+		-- Hide map 2 content ----------------------------
+		gui.set_enabled(imageMapTwo, false)  -- Map 2 image
+		gui.set_enabled(titleMapTwo, false)   -- Map 2 title
+		gui.set_enabled(selectMapTwo, false)   -- Map 2 select button
+	end
+end
+	
+
+-- User search --
+function search(self, searchValue)
+	local errorMessage = gui.get_node("error message")
+	if(searchValue == "") then-- If search value is nil
+		-- Displays both maps
+		gui.set_enabled(errorMessage, false)
+		firstMapIndex = 1
+		changeMaps(self)
+		mapDisplay(self, "both maps")
+		print("No input")
+	else
+		local searchValueIndex = binarySearch(10, 1, searchValue) -- Returns items index using binary 
+		if(searchValueIndex == -1) then -- Item was not found
+			gui.set_enabled(errorMessage, true)
+			print("Item was not found")
+			mapDisplay(self, "no maps")   -- Display no maps and an error message
+			
+		else -- Item was found
+			gui.set_enabled(errorMessage, false)
+			firstMapIndex = searchValueIndex
+			print("Item was found at index" .. searchValueIndex)   -- Display only first map
+			changeMaps(self)
+			mapDisplay(self, "only first map")
+			
+		end
+	end
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")  -- This component is awaiting input
+	getMapTitles(self)
+	getMapDescriptions(self)
+	firstMapIndex = 1
+	secondMapIndex = 2
+	clickOnSearchBar = false
+	self.searchBarInput = ""
+	changeMaps(self)
+
+end
+
+-- Input ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function on_input(self, action_id, action)
+	
+	
+	-- Clicking ------------------------------------------------------
+	if(action_id == hash("click") and action.released == true) then
+		-- Back button --
+		local back = gui.get_node("back")        -- Gets the node for the back button and saves it to a variable
+		if(gui.pick_node(back,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the back button
+			msg.post("/loader#loader", "open_game_options")  -- Opens game options menu
+		end
+	
+
+		-- Down arrow --
+		local downArrow = gui.get_node("down arrow")        -- Gets the node for the down arrow button and saves it to a variable
+		if(gui.pick_node(downArrow,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the down arrow button
+			if(secondMapIndex < 10) then
+				firstMapIndex = firstMapIndex + 1
+				secondMapIndex = secondMapIndex + 1
+				changeMaps(self)
+			end
+		end
+	
+		-- Up arrow --
+		local upArrow = gui.get_node("up arrow")        -- Gets the node for the up arrow button and saves it to a variable
+		if(gui.pick_node(upArrow,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the up arrow button
+			if(firstMapIndex > 1) then
+				firstMapIndex = firstMapIndex - 1
+				secondMapIndex = secondMapIndex - 1
+				changeMaps(self)
+			end
+		end
+	
+
+		-- Search button --
+		local searchButtonNode = gui.get_node("search icon")        -- Gets the node and saves it to a variable
+		if(gui.pick_node(searchButtonNode,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the node
+			-- Perform search function with their input
+			search(self, self.searchBarInput)
+		end
+	
+
+		-- Search bar --
+		local searchBarNode = gui.get_node("search bar")
+		if(gui.pick_node(searchBarNode,action.x,action.y)) then   -- Stores where the user has clicked
+			clickOnSearchBar = true
+			-- Gets rid of search here text
+			local searchHereText = gui.get_node("search here")
+			gui.set_enabled(searchHereText, false)
+			print("clicked on search bar")
+
+			--
+			local searchBar = gui.get_node("search bar")
+			gui.set_enabled(searchBar, false)
+		else
+			clickOnSearchBar = false
+			-- Brings search here text back if the user has not typed
+			if(self.searchBarInput == "") then
+				local searchHereText = gui.get_node("search here")
+				gui.set_enabled(searchHereText, true)
+			end
+			-- 
+			local searchBar = gui.get_node("search bar")
+			gui.set_enabled(searchBar, true)
+			print("clicked off search bar")
+		end
+	
+
+		-- Map 1 select button --
+		local mapOneSelectButton = gui.get_node("map 1 select")
+		if(gui.pick_node(mapOneSelectButton,action.x,action.y)) then 
+			getMapTitles(self)
+			chosenMap = mapTitlesList[firstMapIndex]
+			selectMap(self, chosenMap)
+			
+			msg.post("/loader#loader", "open_game_options")
+			msg.post("/game options menu#game options menu", "display_info")
+		end
+	
+
+		-- Map 2 select button --
+		local mapTwoSelectButton = gui.get_node("map 2 select")
+		if(gui.pick_node(mapTwoSelectButton,action.x,action.y)) then 
+			getMapTitles(self)
+			chosenMap = mapTitlesList[secondMapIndex]
+			selectMap(self, chosenMap)
+			
+			msg.post("/loader#loader", "open_game_options")
+			msg.post("/game options menu#game options menu", "display_info")
+		end
+	end
+
+	-- Typing -----------------------------------------------
+
+	if(action_id == hash("type")) then   -- If the user types 
+		-- Search bar input --
+		if(clickOnSearchBar == true and string.len(self.searchBarInput) < 20) then                      -- User input will go in search bar
+			local searchInputTextNode = gui.get_node("user search input")  
+			self.searchBarInput = self.searchBarInput .. action.text   
+			gui.set_text(searchInputTextNode, self.searchBarInput)          
+			print("You typed a character into the search bar")
+		end
+	elseif(action_id == hash("backspace") and action.repeated) then
+		-- Search bar backspace --
+		if(clickOnSearchBar == true) then                   
+			local searchInputTextNode = gui.get_node("user search input")  
+			local l = string.len(self.searchBarInput)                     -- Length of search input
+			self.searchBarInput = string.sub(self.searchBarInput, 0, l-1)    -- Removes the last character of the string                     
+			gui.set_text(searchInputTextNode, self.searchBarInput)     -- Changes the text gui node to what the user types
+			print("You backspaced")
+		end
+	end
+
+	
+end

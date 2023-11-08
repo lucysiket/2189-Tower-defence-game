@@ -1,0 +1,166 @@
+-- Gets map titles from file and saves to a variable  -------------
+function getMapTitles(self)
+	io.input("mapDetails.txt")   -- Opens the file in read mode
+	mapTitlesList = {}     -- This table stores map titles
+	local accountLineNum = 0     -- Stores line number
+	for line in io.lines() do   -- Iterates through file
+		accountLineNum = accountLineNum + 1  -- Shows progression onto new line
+		if(math.fmod(accountLineNum, 2) ~= 0) then -- Current line holds map title
+			table.insert(mapTitlesList, line)    -- Adds map title to table
+		end
+	end 
+	
+end
+
+-- Gets map descriptions from file and saves to a variable  -------------
+function getMapDescriptions(self)
+	io.input("mapDetails.txt")   -- Opens the file in read mode
+	mapDescriptionsList = {}     -- This table stores map titles
+	local accountLineNum = 0     -- Stores line number
+	for line in io.lines() do   -- Iterates through file
+		accountLineNum = accountLineNum + 1  -- Shows progression onto new line
+		if(accountLineNum % 2 == 0) then -- Current line holds map description
+			table.insert(mapDescriptionsList, line)    -- Adds map description to table
+		end
+	end 
+end
+
+-- Play now function --
+function playNow()
+	local errorMsgTextNode = gui.get_node("error message")
+	if(chosenMap == "") then
+		gui.set_text(errorMsgTextNode, "You must choose \na map to play!")
+	elseif(chosenMap ~= "Wastelands") then
+		gui.set_text(errorMsgTextNode, "This map is \nlocked!")
+	else
+		msg.post("/loader#loader", "open_game")
+	end
+end
+
+--------------------------------------------------------------------------------------------------------------------
+-- Reads chosen map from file --
+local function readMap(self)
+	io.input("selectedMap.txt")
+
+	for line in io.lines() do
+		print("The map is " .. line)
+		print(line)
+		return line
+	end
+	print("No map was found")
+	return "None"
+end
+
+-- Display chosen map --
+function displayChosenMap(self)
+	--chosenMap = readMap(self)
+	local mapDisplay = gui.get_node("selected map")
+	if(chosenMap ==  "") then
+		gui.set_text(mapDisplay, "None")
+	else
+		gui.set_text(mapDisplay, chosenMap)
+	end
+
+end
+
+-- Writes chosen map to file ---
+function selectMap(self, chosenMap)
+	local file = io.open("selectedMap.txt", "w")
+	file:write(chosenMap)
+	io.close()
+end
+
+-- Generates random map ----
+function chooseRandomMap(self)
+	getMapTitles(self)
+	randomNum = math.random(1, 10) -- Random int
+	for k,v in pairs(mapTitlesList) do
+		if(k == randomNum) then  
+			chosenMap = v  -- Gets map at that index
+		end
+	end
+	local mapDisplay = gui.get_node("selected map")
+	gui.set_text(mapDisplay, chosenMap)
+end
+
+function getHighscore(self)
+	io.input("currentAccount.txt")
+	local accountLineNum = 0
+	for line in io.lines() do
+		accountLineNum = accountLineNum + 1
+		if(accountLineNum == 3) then
+			print(line)
+			return line
+		end
+	end
+end
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	chosenMap = ""
+
+	-- Displays the players chosen map
+	local map = readMap(self)
+	local mapTextNode = gui.get_node("selected map")
+	gui.set_text(mapTextNode, "None")
+end
+
+
+function on_input(self, action_id, action)
+
+	-- Back button --
+	if(action_id == hash("click") and action.released == true) then
+		local back = gui.get_node("back")        -- Gets the node for the back button and saves it to a variable
+		if(gui.pick_node(back,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the back button
+			msg.post("/loader#loader", "open_startup")  -- Opens startup menu
+		end
+	end
+
+	-- Choose map button --
+	if(action_id == hash("click") and action.released == true) then
+		local chooseMap = gui.get_node("choose map")        -- Gets the node for the choose map button and saves it to a variable
+		if(gui.pick_node(chooseMap,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the choose map button
+			msg.post("/loader#loader", "open_map_selection")  -- Opens map selection menu
+		end
+	end
+
+	-- Random map button --
+	if(action_id == hash("click") and action.released == true) then
+		local randomMap = gui.get_node("random map")        -- Gets the node for the random map button and saves it to a variable
+		if(gui.pick_node(randomMap,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the random map button
+			chooseRandomMap(self)
+			selectMap(self, chosenMap)
+		end
+	end
+
+	-- Play now button --
+	if(action_id == hash("click") and action.released == true) then
+		local playnow = gui.get_node("play now")        -- Gets the node for the play now button and saves it to a variable
+		if(gui.pick_node(playnow,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the play nowbutton
+			playNow()
+		end
+	end
+end
+
+function on_message(self, message_id, message)
+	if(message_id == hash("display_info")) then
+		-- Displays players highscore --
+		print("game opions menu opened")
+		local highscore = getHighscore(self)
+		local highscoreTextNode = gui.get_node("players highscore")
+		gui.set_text(highscoreTextNode, highscore)
+
+		-- Displays the players chosen map
+		local mapTextNode = gui.get_node("selected map")
+		if(chosenMap == "") then
+			gui.set_text(mapTextNode, "none")
+		else
+			local map = readMap(self)
+			gui.set_text(mapTextNode, map)
+		end
+		
+		
+	end	
+
+
+end

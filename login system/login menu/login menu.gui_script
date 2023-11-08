@@ -1,0 +1,304 @@
+-- Login functions ------------------------------------------------------------------------------------------------------
+
+-- Gets usernames from file and saves to a variable  -------------
+function getUsernames(self)
+	io.input("loginDetails.txt")   -- Opens the file in read mode
+
+	usernamesList = {}     -- This table will store all the usernames on file
+	local accountLineNum = 0     -- This variable holds the line number - this will reset each time a new username is reached
+
+	for line in io.lines() do   -- Iterates through the whole file
+		accountLineNum = accountLineNum + 1  -- Increments the variable as the for loop has progressed onto a new line
+
+		if(accountLineNum == 1) then -- This means that the current line holds a username
+			table.insert(usernamesList, line)    -- Adds the contents of the current line (a username) onto the username table
+		elseif(accountLineNum == 4) then   -- This means that the current line holds a username
+			table.insert(usernamesList, line)    -- Adds the contents of the current line (a username) onto the username table
+			accountLineNum = 1  -- Resets the variable
+		end
+	end  -- Closes the file
+end
+
+-- Gets passwords from file and saves to a variable  ---------------------------
+function getPasswords(self)
+	io.input("loginDetails.txt")   -- Opens the file in read mode
+
+	passwordsList = {}     -- This table will store all the passwords on file
+	local accountLineNum = 0     -- This variable holds the line number - this will reset each time a new username is reached
+
+	for line in io.lines() do   -- Iterates through the whole file
+		accountLineNum = accountLineNum + 1  -- Increments the variable as the for loop has progressed onto a new line
+		if(accountLineNum == 2) then -- This means that the current line holds a password
+			table.insert(passwordsList, line)    -- Adds the contents of the current line (a password) onto the table
+		elseif(accountLineNum == 4) then  
+			accountLineNum = 1  -- Resets the variable
+		end
+	end  -- Closes the file
+end
+
+-- Gets highscore from a username --
+local function getHighscore(self, username)
+	print("Function getHighscore being run ----------------------------")
+	getUsernames(self)
+	io.input("loginDetails.txt")
+	highscoreList = {}
+	local accountLineNum = 0
+
+	for line in io.lines() do
+		accountLineNum = accountLineNum + 1
+		if(accountLineNum == 3) then
+			table.insert(highscoreList, line)
+			accountLineNum = 0
+		end
+	end
+
+	for k,v in pairs(usernamesList) do
+		if(v == username) then
+			usernamePosition = k
+			print("Username found at position " .. usernamePosition)
+		end
+	end
+
+	
+	for k,v in pairs(highscoreList) do
+		if(k == usernamePosition) then
+			print("Player " .. username .. " has a highscore of " .. v)
+			highscore = v
+			return highscore
+		end
+	end
+end
+
+
+-- Validation functions --------------------------------------------------------------------------------
+
+-- Username exists function ----
+function usernameExists(self, username)
+	getUsernames(self)    -- The function gets all usernames and saves them to a vairable usernamesList
+	for k,v in pairs(usernamesList) do
+		if(v == username) then   -- If a value holds the specified username, return true
+			return true
+		end
+	end
+	return false
+end
+
+-- Correct length function ---
+function correctLength(input, minLength, maxLength)
+	if(string.len(input) <= maxLength and string.len(input) >= minLength) then
+		return true
+	else
+		return false
+	end
+end
+
+-- Password correct function ----
+function passwordCorrect(usernameInput, passwordInput)
+	getPasswords(self)
+	getUsernames(self)
+
+	for k,v in pairs(usernamesList) do   -- Iterates through the usernames list
+		if(v == usernameInput) then   -- If an index holds the specified username, its position will be recorded
+			usernamePosition = k   -- Saves the current key to a variable
+		end
+	end
+
+	for k,v in pairs(passwordsList) do
+		if(k == usernamePosition and v == passwordInput) then   -- If the inputted password matches what is on file
+			return true
+		end
+	end
+	return false
+end
+
+-- Writes account details to file --
+function writesAccountDetails(self, username, password, highscore)
+	local file = io.open("currentAccount.txt", "w")
+	file:write(username)
+	file:write("\n".. password)
+	file:write("\n" .. highscore)
+	file:close() 
+end
+
+
+
+-- Display error message -----
+function errorMsg(message)
+	local errorMsgTextNode = gui.get_node("error message text")   -- Gets node for error msg text node and saves to a variable
+	errorMessage = message   -- Adds typed text to variable that stores text
+	gui.set_text(errorMsgTextNode, errorMessage)          -- Changes the text gui node to the error message
+end
+
+
+-- This function runs when the user clicks to log on ----
+function login(usernameInput, passwordInput)
+	if usernameExists(self, usernameInput) then
+		if passwordCorrect(usernameInput, passwordInput) then
+			username = usernameInput
+			password = passwordInput
+			highscore = getHighscore(self, username)
+
+			writesAccountDetails(self, username, password, highscore)
+			msg.post("/loader#loader", "open_startup")     -- Sends the loader a message to open start up menu
+		else
+			errorMsg("Password is incorrect")
+		end
+	else
+		errorMsg("Username does not exist")
+	end 
+end
+
+
+
+-- Upon initialisation ------------------------------------------------------
+function init(self) 
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	self.usernameInput = ""   -- Username input
+	self.passwordInput = ""   -- Password input
+	clickOnUsername = false   -- Determines whether user has clicked on username box
+	clickOnPassword = false   -- Determines whether user has clicked on password box
+	self.hashedPassword = ""  -- Stores hashed password
+
+	-- Gets gui nodes for the outlined boxes --
+	outlinedUsername = gui.get_node("outlined username input box")
+	outlinedPassword = gui.get_node("outlined password input box")
+	-- Disables them upon initilisation --
+	gui.set_enabled(outlinedUsername, false)
+	gui.set_enabled(outlinedPassword, false)
+
+
+end
+
+
+-- On input -----------------------------------------------------------------
+function on_input(self, action_id, action)
+
+	-- Signup button ----
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local signUp = gui.get_node("sign up")        -- Gets the node for the signup button and saves it to a variable
+		if(gui.pick_node(signUp,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the signup button
+			msg.post("/loader#loader", "open_signup")         -- Sends the loader a message to open sign up menu
+		end
+	end
+
+	-- Continue as guest button ----
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local continueAsGuest = gui.get_node("continue as guest")        -- Gets the node for the continue as guest button and saves it to a variable
+		if(gui.pick_node(continueAsGuest,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the continue as guest button
+			username = "guest"
+			password = "guest"
+			writesAccountDetails(self, username, password, "n/a")
+			msg.post("/loader#loader", "open_startup")         -- Sends the loader a message to open start up menu
+		end
+	end
+
+	-- Login button ----
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local loginNode = gui.get_node("login")                       -- Gets the node for the login button and saves it to a variable
+		if(gui.pick_node(loginNode,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the login button
+			login(self.usernameInput, self.passwordInput) 
+		end
+	end
+
+
+	
+	-- Input fields ---------------------------------------------------------------------
+	
+	-- Determines whether a click occured within an input box -------
+	if(action_id == hash("click") and action.released == true) then  -- If the user clicks and releases
+
+		-- Nodes ----
+		local usernameBoxNode = gui.get_node("username input box")       -- Gets node for username box and saves to a variable
+		local usernameTextNode = gui.get_node("username input text")     -- Gets node for username text and saves to a variable
+		local passwordBoxNode = gui.get_node("password input box")       -- Gets node for password box and saves to a variable
+		local passwordTextNode = gui.get_node("password input text")     -- Gets node for password text and saves to a variable
+
+		-- Username ----
+		if(gui.pick_node(usernameBoxNode,action.x,action.y) or gui.pick_node(usernameTextNode,action.x,action.y)) then  -- Tests whether action occured within text or box
+			clickOnUsername = true  -- User clicked on username box or text
+			clickOnPassword = false
+			gui.set_enabled(outlinedPassword, false)  -- Outlines username box 
+			gui.set_enabled(outlinedUsername, true)
+			print("Clicked on username box")
+		-- Password ----
+		elseif(gui.pick_node(passwordBoxNode,action.x,action.y) or gui.pick_node(passwordTextNode,action.x,action.y)) then  -- Tests whether action occured within text or box
+			clickOnPassword = true  -- User clicked on password box or text
+			clickOnUsername = false
+			gui.set_enabled(outlinedPassword, true)    -- Outlines password box
+			gui.set_enabled(outlinedUsername, false)
+			print("Clicked on password box")
+		else
+			clickOnUsername = false  -- User did not click on username box or text
+			clickOnPassword = false
+			gui.set_enabled(outlinedUsername, false)   -- Un outlines both boxes
+			gui.set_enabled(outlinedPassword, false)
+			print("Clicked off username or passwordbox")
+		end
+	end
+
+
+	
+	-- Text input ----
+	if(action_id == hash("type")) then   -- If the user types 
+
+		-- Username text input ----
+		if(clickOnUsername == true and string.len(self.usernameInput) < 12) then     -- If the user previously clicked on the username input box and there are less than 12 characters
+			local usernameTextNode = gui.get_node("username input text")   -- Gets node for username text and saves to a variable
+			self.usernameInput = self.usernameInput .. action.text   -- Adds typed text to variable that stores text
+			gui.set_text(usernameTextNode, self.usernameInput)          -- Changes the text gui node to what the user types
+			print("You typed a character")
+
+		-- Password text input ----
+		elseif(clickOnPassword == true and string.len(self.passwordInput) < 15) then   -- If the user previously clicked on the password input and there are less than 15 characters
+			local passwordTextNode = gui.get_node("password input text")   -- Gets node for password text and saves to a variable
+			self.passwordInput = self.passwordInput .. action.text   -- Adds typed text to variable that stores text
+			self.hashedPassword = self.hashedPassword .. "*"          -- Adds a hash
+			gui.set_text(passwordTextNode, self.hashedPassword)          -- Changes the text gui node to a hash of what the user types
+			print("You typed a character")
+		end
+
+		
+	-- Backspace input ----
+	elseif(action_id == hash("backspace") and action.repeated) then    -- If the user presses the backspace
+
+		-- Username backspace input ----
+		if(clickOnUsername == true) then                        -- If the user previously clicked on the username input box
+			local usernameTextNode = gui.get_node("username input text")   -- Gets node for username text and saves to a variable
+			local l = string.len(self.usernameInput)                     -- Variable stores the length of username input
+			self.usernameInput = string.sub(self.usernameInput, 0, l-1)    -- Removes the last character of the string                     
+			gui.set_text(usernameTextNode, self.usernameInput)     -- Changes the text gui node to what the user types
+			print("You backspaced")
+
+		-- Backspace text input ----
+		elseif(clickOnPassword == true) then   -- If the user previously clicked on the password input box
+			local passwordTextNode = gui.get_node("password input text")   -- Gets node for password text and saves to a variable
+			local l = string.len(self.passwordInput)                     -- Variable stores the length of username input
+			self.passwordInput = string.sub(self.passwordInput, 0, l-1)    -- Removes the last character of the string     
+			self.hashedPassword = string.sub(self.hashedPassword, 0, l-1)    -- Removes the last character of the hashed password          
+			gui.set_text(passwordTextNode, self.hashedPassword)          -- Changes the text gui node to a hash of what the user types
+			print("You backspaced")
+		end
+	end		
+end
+
+function on_message(self, message_id, message)
+	if message_id == hash("logout") then
+		-- Resets the values of variables
+		self.usernameInput = ""   -- Username input
+		local usernameTextNode = gui.get_node("username input text")   -- Gets node for username text and saves to a variable
+		gui.set_text(usernameTextNode, self.usernameInput)          -- Resets the text gui
+		
+		self.passwordInput = ""   -- Password input
+		self.hashedPassword = ""  -- Stores hashed password
+		local passwordTextNode = gui.get_node("password input text")   -- Gets node for password text and saves to a variable
+		gui.set_text(passwordTextNode, self.hashedPassword)          -- Resets the text gui node
+		
+		clickOnUsername = false   -- Determines whether user has clicked on username box
+		clickOnPassword = false   -- Determines whether user has clicked on password box
+		
+		-- Disables them upon initilisation --
+		gui.set_enabled(outlinedUsername, false)
+		gui.set_enabled(outlinedPassword, false)
+	end
+end
+

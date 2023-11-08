@@ -1,0 +1,167 @@
+-- Kills the zombie --
+local function zombieDeath(self)
+	go.delete(".")
+end
+
+-- Decreases zombie's HP -- 
+local function decreaseHP(self, amount)
+	-- Zombie's HP decreases by the specific amount --
+	self.zombieHP = self.zombieHP - amount
+	print(self.zombieHP)
+
+	-- Sets the zombies sprite to show its taking damage --
+	if(self.zombieType == "strong") then
+		sprite.play_flipbook(".", "strong zombie sprite damaged")
+	elseif(self.zombieType == "normal") then
+		sprite.play_flipbook(".", "normal zombie sprite damaged")
+	elseif(self.zombieType == "quick") then
+		sprite.play_flipbook(".", "quick zombie sprite damaged")
+	end
+	-- The zombie dies if the HP reaches 0 or below --
+	if(self.zombieHP <= 0) then
+		zombieDeath(self)
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	-- Sets attributes of zombie depending on the message posted
+	if message_id == hash("strong") then
+		self.zombieType = "strong"
+		sprite.play_flipbook(".", "strong zombie sprite")
+		self.zombieSpeed = 11
+		self.zombieHP = 100
+		self.zombieAttackDamage = 10
+	elseif message_id == hash("normal") then
+		self.zombieType = "normal"
+		sprite.play_flipbook(".", "normal zombie sprite")
+		self.zombieSpeed = 6
+		self.zombieHP = 50
+		self.zombieAttackDamage = 5
+	elseif message_id == hash("quick") then
+		self.zombieType = "quick"
+		sprite.play_flipbook(".", "quick zombie sprite")
+		self.zombieSpeed = 3
+		self.zombieHP = 30
+		self.zombieAttackDamage = 3
+	end
+
+	-- The zombies receive a message to get attacked --
+	if message_id == hash("get_attacked") then
+		-- Reads the file to find the tower's attack damage --
+		io.input("towerAttack.txt")
+
+		self.attackDamage = {}
+		for line in io.lines() do   -- Iterates through the whole file
+			table.insert(self.attackDamage, line)    -- Adds every line to the table
+		end  -- Closes the file
+
+		for k,v in pairs(self.attackDamage) do
+			if(k == 1) then
+				self.towerAttackDamage = v
+			end
+		end
+
+		-- Decreases the HP by the attack damage --
+		decreaseHP(self, self.towerAttackDamage)
+
+		print("Zombie HP: " .. self.zombieHP)
+	end
+	
+end
+
+local function moveZombie(self, xPoint, yPoint)
+	if(self.moving == false) then
+		print(self.nodesVisited)
+		print("zombie moved to" .. xPoint .. yPoint)
+		self.moving = true
+		self.pos = vmath.vector3(xPoint, yPoint, 0) -- Zombie will move to these co-ordinates
+		go.animate(".", "position", go.PLAYBACK_ONCE_FORWARD, self.pos, go.EASING_LINEAR, self.zombieSpeed, 0, movedToPosition) 
+		self.nodesVisited = self.nodesVisited + 1
+	end
+
+end
+
+function movedToPosition(self) -- This function runs once the zombie has finished moving to its target
+	self.moving = false
+
+	-- Will move to the next node depending on the previous node
+	if(self.nodesVisited == 1) then
+		moveZombie(self, 275, 150)
+	elseif(self.nodesVisited == 2) then
+		moveZombie(self, 275, 525)
+	elseif(self.nodesVisited == 3) then
+		moveZombie(self, 475, 525)
+	elseif(self.nodesVisited == 4) then
+		moveZombie(self, 475, 75)
+	elseif(self.nodesVisited == 5) then
+		moveZombie(self, 840, 75)
+	elseif(self.nodesVisited == 6) then
+		moveZombie(self, 840, 575)
+	elseif(self.nodesVisited == 7) then
+		moveZombie(self, 1050, 575)
+	elseif(self.nodesVisited == 8) then
+		moveZombie(self, 1050, 250)
+	elseif(self.nodesVisited == 9) then
+		-- The zombie has reached the HQ - the final node --
+		self.visitedAllNodes = true
+	end
+		
+end
+
+function init(self)
+	-- Timer --
+	self.timer = 0
+	self.seconds = 0
+
+	-- Movement --
+	self.visitedAllNodes = false
+	self.moving = false
+	self.nodesVisited = 0
+
+	-- Zombie attributes --
+	self.zombieType = "normal"
+	sprite.play_flipbook(".", "normal zombie sprite")
+	self.zombieSpeed = 6
+	self.zombieHP = 20
+	self.zombieAttackDamage = 5
+	
+	-- The zombie will move through the map between nodes until it reaches the HQ --
+	moveZombie(self, -50, 150)
+
+	--msg.post(".", "get_attacked")
+end
+
+
+function update(self, dt)
+
+	msg.post("/script#game", "zombie_active")
+	
+	-- If the zombie has reached the final node and is now at the base
+	if(self.visitedAllNodes == true) then
+		-- Start timer --
+		-- The variable self.timer stores the time elapsed
+		self.timer = self.timer + dt
+		print(self.timer)
+
+		-- The variable seconds stores number of seconds elapsed
+		self.seconds = math.floor(self.timer)
+		
+		-- Every 2 seconds
+		if(self.seconds == 2) then
+			self.timer = 0  -- Resets the timer so this code will only run once
+			
+			-- Message the base to get attacked depending on zombie type --
+			if(self.zombieType == "strong") then
+				msg.post("/base#base", "strong_zombie_attack")
+			elseif(self.zombieType == "normal") then
+				msg.post("/base#base", "normal_zombie_attack")
+			elseif(self.zombieType == "quick") then
+				print("Zombie attack")
+				msg.post("/base#base", "quick_zombie_attack")
+			end
+		end
+	end
+	
+end
+
+

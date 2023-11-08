@@ -1,0 +1,69 @@
+-- Reading from a file -------------------------------------------------------------------
+
+-- Opens a file in read mode and sets the specified file to the default file
+io.input("loginDetails.txt") 
+
+-- Reads a line from the file and saves it to a variable
+local firstLine = io.read("*line")
+
+-- Reads the first 5 characters of a file and saves it to a variable
+local firstFiveChar = io.read(5)
+
+-- Reads a number from a file and saves it to a variable
+local number = io.read("*number")
+
+-- Reads the whole file and saves it to a variable
+local wholeFile = io.read("*all")
+
+-- Note:
+-- When, for example, you read a line from a file,
+-- the next time you want to read from the file it will begin
+-- reading from where you last finished.
+-- If you want to read from the start of the file again
+-- you will need to close the file and reopen it
+
+io.close() -- Closes the file
+
+-- Opens a file in read mode and sets the specified file to the default file
+io.input("loginDetails.txt") 
+
+-- This iterates through the whole file and prints the contents of each line
+-- This will automatically close the file after the loop
+for line in io.lines() do
+	print(line)
+end
+
+-- How to get the number of lines in your file
+io.input("loginDetails.txt") 
+count = 0
+for line in io.lines() do
+	count = count + 1
+end
+
+
+-- Writing to a file ---------------------------------------------------------------------
+
+-- Opens a file in append mode and sets the specified file to the default file
+-- The letter represents what you are using the file for
+-- Opening a file in "w" write mode will overwrite anything on the file already
+-- "a" append will add to the end of the file
+local file = io.open("myFile.txt", "a")
+
+-- Writes a string on a new line
+file:write("\n" .. "hello world")
+
+file:close() -- Alternative way of closing a file
+
+
+-- Gets map descriptions from file and saves to a variable  -------------
+function getMapDescriptions(self)
+	io.input("mapDetails.txt")   -- Opens the file in read mode
+	mapDescriptionsList = {}     -- This table stores map titles
+	local accountLineNum = 0     -- Stores line number
+	for line in io.lines() do   -- Iterates through file
+		accountLineNum = accountLineNum + 1  -- Shows progression onto new line
+		if(accountLineNum % 2 ~= 0) then -- Current line holds map description
+			table.insert(mapDescriptionsList, line)    -- Adds map description to table
+		end
+	end 
+end

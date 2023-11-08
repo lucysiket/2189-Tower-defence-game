@@ -1,0 +1,23 @@
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+end
+
+function on_input(self, action_id, action)
+	-- Return to menu button --
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local exitToMenuButton = gui.get_node("exit to menu button")
+		if(gui.pick_node(exitToMenuButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+			-- Opens the startup menu
+			msg.post("main:/Collections#main collection", "open_startup_menu")
+		end
+	end
+	
+	-- Exit game button --
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local exitGameButton = gui.get_node("exit game button")
+		if(gui.pick_node(exitGameButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+			os.exit()
+		end
+	end
+end
+

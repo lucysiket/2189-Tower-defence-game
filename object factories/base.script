@@ -1,0 +1,11 @@
+function on_message(self, message_id, message, sender)
+
+	-- This will handle messages sent from zombies attacking the base
+	if(message_id == hash("strong_zombie_attack")) then
+		msg.post("/gameplay gui#gameplay system", "strong_zombie_attack")  -- HP deduction of 10
+	elseif(message_id == hash("normal_zombie_attack")) then
+		msg.post("/gameplay gui#gameplay system", "normal_zombie_attack") -- HP deduction of 5
+	elseif(message_id == hash("quick_zombie_attack")) then
+		msg.post("/gameplay gui#gameplay system", "quick_zombie_attack")  -- HP deduction of 3
+	end
+end
