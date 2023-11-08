@@ -1,0 +1,18 @@
+[bootstrap]
+main_collection = /main collection/main collection.collectionc
+
+[script]
+shared_state = 1
+
+[display]
+width = 1280
+height = 720
+fullscreen = 0
+
+[android]
+input_method = HiddenInputField
+
+[project]
+title = 2189
+dependencies#0 = https://github.com/klaytonkowalski/library-defold-timer/archive/main.zip
+
