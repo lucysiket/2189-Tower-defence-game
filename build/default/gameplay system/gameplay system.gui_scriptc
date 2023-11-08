@@ -1,0 +1,796 @@
+
+÷п
+НоmainDisplayOpened = false
+towerOptionsOpened = false
+towerPurchaseOpened = false
+
+-- Open menus ---------------------------
+function openMainDisplay(self)
+	print("Main display opened")
+	mainDisplayOpened = true
+	towerOptionsOpened = false
+	towerPurchaseOpened = false
+	
+	-- Gets all nodes and saves as variables --
+	-- Main display
+	local mainDisplayBar = gui.get_node("main display ui bar")
+	local pauseButton = gui.get_node("pause button")
+	local backButton = gui.get_node("back button")
+	local moneyButton = gui.get_node("money button")
+	local hpBar = gui.get_node("hp bar")
+	local moneyText = gui.get_node("money")
+	local information = gui.get_node("information")
+	local timeElapsedText = gui.get_node("time elapsed")
+	local roundNumberText = gui.get_node("round number")
+	local hpNumber = gui.get_node("hp number")
+	-- Tower options --
+	local towerOptionsBar = gui.get_node("tower options ui bar")
+	local sellTowerButton = gui.get_node("sell tower button")
+	local upgradeRangeButton = gui.get_node("range button")
+	local upgradeFrequencyButton = gui.get_node("frequency button")
+	local upgradeStrengthButton = gui.get_node("strength button")
+	local sellTowerPriceText = gui.get_node("sell tower price")
+	local upgradeRangePriceText = gui.get_node("upgrade range price")
+	local rangeLevelText = gui.get_node("range level")
+	local upgradeFrequencyPriceText = gui.get_node("upgrade frequency price")
+	local frequencyLevelText = gui.get_node("frequency level")
+	local upgradeStrengthPriceText = gui.get_node("upgrade strength price")
+	local strengthLevelText = gui.get_node("strength level")
+	-- Tower purchase --
+	local towerPurchaseBar = gui.get_node("tower purchase ui bar")
+	local buyMissileButton = gui.get_node("missile button")
+	local buyRiflebutton = gui.get_node("rifle button")
+	local buySmgButton = gui.get_node("smg button")
+	local missilePriceText = gui.get_node("buy missile price")
+	local smgPriceText = gui.get_node("buy smg price")
+	local riflePriceText = gui.get_node("buy rifle price")
+	
+	-- Disable tower purchase --
+	gui.set_enabled(towerPurchaseBar, false)
+	gui.set_enabled(buyMissileButton, false)
+	gui.set_enabled(buyRiflebutton, false)
+	gui.set_enabled(buySmgButton, false)
+	gui.set_enabled(missilePriceText, false)
+	gui.set_enabled(smgPriceText, false)
+	gui.set_enabled(riflePriceText, false)
+
+	-- Disable tower options --
+	gui.set_enabled(towerOptionsBar, false)
+	gui.set_enabled(sellTowerButton, false)
+	gui.set_enabled(upgradeRangeButton, false)
+	gui.set_enabled(upgradeFrequencyButton, false)
+	gui.set_enabled(upgradeStrengthButton, false)
+	gui.set_enabled(sellTowerPriceText, false)
+	gui.set_enabled(upgradeRangePriceText, false)
+	gui.set_enabled(rangeLevelText, false)
+	gui.set_enabled(upgradeFrequencyPriceText, false)
+	gui.set_enabled(frequencyLevelText, false)
+	gui.set_enabled(upgradeStrengthPriceText, false)
+	gui.set_enabled(strengthLevelText, false)
+	-- Enable main menu --
+	gui.set_enabled(mainDisplayBar, true)
+	gui.set_enabled(pauseButton, true)
+	gui.set_enabled(backButton, true)
+	gui.set_enabled(moneyButton, true)
+	gui.set_enabled(hpBar, true)
+	gui.set_enabled(moneyText, true)
+	gui.set_enabled(information, true)
+	gui.set_enabled(timeElapsedText, true)
+	gui.set_enabled(roundNumberText, true)
+	gui.set_enabled(hpNumber, true)
+end
+
+function openPauseMenu(self)
+	msg.post("main:/Collections#main collection", "pause_game")
+end
+
+function openTowerOptions(self)
+	displayTowerUpgrades(self)
+	
+	print("Tower options menu opened")
+	mainDisplayOpened = false
+	towerOptionsOpened = true
+	towerPurchaseOpened = false
+	
+	-- Main display
+	local mainDisplayBar = gui.get_node("main display ui bar")
+	local pauseButton = gui.get_node("pause button")
+	local backButton = gui.get_node("back button")
+	local moneyButton = gui.get_node("money button")
+	local hpBar = gui.get_node("hp bar")
+	local moneyText = gui.get_node("money")
+	local information = gui.get_node("information")
+	local timeElapsedText = gui.get_node("time elapsed")
+	local roundNumberText = gui.get_node("round number")
+	local hpNumber = gui.get_node("hp number")
+	-- Tower options --
+	local towerOptionsBar = gui.get_node("tower options ui bar")
+	local sellTowerButton = gui.get_node("sell tower button")
+	local upgradeRangeButton = gui.get_node("range button")
+	local upgradeFrequencyButton = gui.get_node("frequency button")
+	local upgradeStrengthButton = gui.get_node("strength button")
+	local sellTowerPriceText = gui.get_node("sell tower price")
+	local upgradeRangePriceText = gui.get_node("upgrade range price")
+	local rangeLevelText = gui.get_node("range level")
+	local upgradeFrequencyPriceText = gui.get_node("upgrade frequency price")
+	local frequencyLevelText = gui.get_node("frequency level")
+	local upgradeStrengthPriceText = gui.get_node("upgrade strength price")
+	local strengthLevelText = gui.get_node("strength level")
+	-- Tower purchase --
+	local towerPurchaseBar = gui.get_node("tower purchase ui bar")
+	local buyMissileButton = gui.get_node("missile button")
+	local buyRiflebutton = gui.get_node("rifle button")
+	local buySmgButton = gui.get_node("smg button")
+	local missilePriceText = gui.get_node("buy missile price")
+	local smgPriceText = gui.get_node("buy smg price")
+	local riflePriceText = gui.get_node("buy rifle price")
+	
+	-- Close main display --
+	gui.set_enabled(mainDisplayBar, false)
+	gui.set_enabled(hpBar, false)
+	gui.set_enabled(information, false)
+	gui.set_enabled(timeElapsedText, false)
+	gui.set_enabled(roundNumberText, false)
+	gui.set_enabled(hpNumber, false)
+	
+	-- Close tower purchase -- 
+	gui.set_enabled(towerPurchaseBar, false)
+	gui.set_enabled(buyMissileButton, false)
+	gui.set_enabled(buyRiflebutton, false)
+	gui.set_enabled(buySmgButton, false)
+	gui.set_enabled(missilePriceText, false)
+	gui.set_enabled(smgPriceText, false)
+	gui.set_enabled(riflePriceText, false)
+	
+	
+	-- Open tower options --
+	gui.set_enabled(moneyText, true)
+	gui.set_enabled(moneyButton, true)
+	gui.set_enabled(pauseButton, true)
+	gui.set_enabled(backButton, true)
+	gui.set_enabled(towerOptionsBar, true)
+	gui.set_enabled(sellTowerButton, true)
+	gui.set_enabled(upgradeRangeButton, true)
+	gui.set_enabled(upgradeFrequencyButton, true)
+	gui.set_enabled(upgradeStrengthButton, true)
+	gui.set_enabled(sellTowerPriceText, true)
+	gui.set_enabled(upgradeRangePriceText, true)
+	gui.set_enabled(rangeLevelText, true)
+	gui.set_enabled(upgradeFrequencyPriceText, true)
+	gui.set_enabled(frequencyLevelText, true)
+	gui.set_enabled(upgradeStrengthPriceText, true)
+	gui.set_enabled(strengthLevelText, true)
+end
+
+function openTowerPurchase(self)
+	displayTowerPrices(self)
+	mainDisplayOpened = false
+	towerOptionsOpened = false
+	towerPurchaseOpened = true
+	-- Getting nodes
+	-- Main display
+	local mainDisplayBar = gui.get_node("main display ui bar")
+	local pauseButton = gui.get_node("pause button")
+	local backButton = gui.get_node("back button")
+	local moneyButton = gui.get_node("money button")
+	local hpBar = gui.get_node("hp bar")
+	local moneyText = gui.get_node("money")
+	local information = gui.get_node("information")
+	local timeElapsedText = gui.get_node("time elapsed")
+	local roundNumberText = gui.get_node("round number")
+	local hpNumber = gui.get_node("hp number")
+	-- Tower options --
+	local towerOptionsBar = gui.get_node("tower options ui bar")
+	local sellTowerButton = gui.get_node("sell tower button")
+	local upgradeRangeButton = gui.get_node("range button")
+	local upgradeFrequencyButton = gui.get_node("frequency button")
+	local upgradeStrengthButton = gui.get_node("strength button")
+	local sellTowerPriceText = gui.get_node("sell tower price")
+	local upgradeRangePriceText = gui.get_node("upgrade range price")
+	local rangeLevelText = gui.get_node("range level")
+	local upgradeFrequencyPriceText = gui.get_node("upgrade frequency price")
+	local frequencyLevelText = gui.get_node("frequency level")
+	local upgradeStrengthPriceText = gui.get_node("upgrade strength price")
+	local strengthLevelText = gui.get_node("strength level")
+	-- Tower purchase --
+	local towerPurchaseBar = gui.get_node("tower purchase ui bar")
+	local buyMissileButton = gui.get_node("missile button")
+	local buyRiflebutton = gui.get_node("rifle button")
+	local buySmgButton = gui.get_node("smg button")
+	local missilePriceText = gui.get_node("buy missile price")
+	local smgPriceText = gui.get_node("buy smg price")
+	local riflePriceText = gui.get_node("buy rifle price")
+
+	-- Close main display --
+	gui.set_enabled(mainDisplayBar, false)
+	gui.set_enabled(hpBar, false)
+	gui.set_enabled(information, false)
+	gui.set_enabled(timeElapsedText, false)
+	gui.set_enabled(roundNumberText, false)
+	gui.set_enabled(hpNumber, false)
+	
+	-- Close tower options --
+	gui.set_enabled(towerOptionsBar, false)
+	gui.set_enabled(sellTowerButton, false)
+	gui.set_enabled(upgradeRangeButton, false)
+	gui.set_enabled(upgradeFrequencyButton, false)
+	gui.set_enabled(upgradeStrengthButton, false)
+	gui.set_enabled(sellTowerPriceText, false)
+	gui.set_enabled(upgradeRangePriceText, false)
+	gui.set_enabled(rangeLevelText, false)
+	gui.set_enabled(upgradeFrequencyPriceText, false)
+	gui.set_enabled(frequencyLevelText, false)
+	gui.set_enabled(upgradeStrengthPriceText, false)
+	gui.set_enabled(strengthLevelText, false)
+
+	-- Open tower purchase --
+	gui.set_enabled(moneyText, true)
+	gui.set_enabled(moneyButton, true)
+	gui.set_enabled(pauseButton, true)
+	gui.set_enabled(backButton, true)
+	gui.set_enabled(towerPurchaseBar, true)
+	gui.set_enabled(buyMissileButton, true)
+	gui.set_enabled(buyRiflebutton, true)
+	gui.set_enabled(buySmgButton, true)
+	gui.set_enabled(missilePriceText, true)
+	gui.set_enabled(smgPriceText, true)
+	gui.set_enabled(riflePriceText, true)
+end
+
+-- All displays --
+function displayPlayerMoney(self)
+	-- Gets players money as numerical value
+	io.input("playerMoney.txt")   -- Opens the file in read mode
+	playerMoney = tonumber(io.read())
+	io.close()
+	local money = gui.get_node("money")
+	gui.set_text(money, playerMoney)
+end
+
+function displayHP(self)
+	-- Gets and sets HP as numerical value
+	io.input("playerHP.txt")   -- Opens the file in read mode
+	playerHP = tonumber(io.read())
+	io.close()
+	local hpNumber = gui.get_node("hp number")
+	gui.set_text(hpNumber, playerHP)
+
+
+	local hpBar = gui.get_node("hp bar")
+	-- Changes graphical bar
+	if(playerHP == 100) then  -- Full HP
+		gui.set_texture(hpBar, "gameplay gui assets")
+		gui.play_flipbook(hpBar, "full hp bar")
+	elseif(playerHP > 50) then   -- Almost full HP
+		gui.set_texture(hpBar, "gameplay gui assets")
+		gui.play_flipbook(hpBar, "almost full hp bar")
+	elseif(playerHP == 50) then  -- Half full HP
+		gui.set_texture(hpBar, "gameplay gui assets")
+		gui.play_flipbook(hpBar, "half full hp bar")
+	elseif(playerHP <= 0) then  -- Empty HP
+		gui.set_texture(hpBar, "gameplay gui assets")
+		gui.play_flipbook(hpBar, "empty hp bar")
+		-- Game over --
+		msg.post("/script#game", "game_over")
+		
+	elseif(playerHP < 50) then  -- Almost empty HP
+		gui.set_texture(hpBar, "gameplay gui assets")
+		gui.play_flipbook(hpBar, "almost empty hp bar")
+	end
+end
+
+function deductHP(self, deductionValue)
+	-- Gets and sets HP as numerical value
+	io.input("playerHP.txt")   -- Opens the file in read mode
+	playerHP = tonumber(io.read())
+	io.close()
+	playerHP = playerHP - deductionValue
+
+	-- Writes this new value to file
+	local file = io.open("playerHP.txt", "w")
+	file:write(playerHP)
+	file:close()
+
+	-- Displays the new value to the user --
+	displayHP(self)
+end
+
+	
+
+-- Tower purchase --
+function displayTowerPrices(self)
+	-- Get tower price and saves as variables ---
+	io.input("towerPrices.txt")   -- Opens the file in read mode
+	towerPriceList = {}     -- This table will store all prices of towers in order: missile, smg, rifle
+	for line in io.lines() do   -- Iterates through the whole file
+		table.insert(towerPriceList, line)    -- Adds every line to the table
+	end  -- Closes the file
+
+	-- Gets prices
+	
+	for k,v in pairs(towerPriceList) do
+		if(k == 1) then
+			missilePrice = v
+		elseif(k == 2) then
+			smgPrice = v
+		elseif(k == 3) then
+			riflePrice = v
+		end
+	end
+
+	-- Displays these values on gui --
+	local buyMissilePrice = gui.get_node("buy missile price")
+	gui.set_text(buyMissilePrice, "-$" .. missilePrice)
+
+	local buySmgPrice = gui.get_node("buy smg price")
+	gui.set_text(buySmgPrice, "-$" .. smgPrice)
+
+	local buyRiflePrice = gui.get_node("buy rifle price")
+	gui.set_text(buyRiflePrice, "-$" .. riflePrice)
+end
+
+
+-- Other --
+
+function getTowerInfo(self, request)
+
+	io.input("individualTowerInfo.txt")
+	
+	towerInfo = {}
+	for line in io.lines() do   -- Iterates through the whole file
+		table.insert(towerInfo, line)    -- Adds every line to the table
+	end  -- Closes the file
+	print("get tower info function")
+	for k,v in pairs(towerInfo) do
+		if(k == 1) then
+			towerType = v
+		elseif(k == 2) then
+			towerValue = v
+		elseif(k == 3) then
+			rangeLevel = v
+		elseif(k == 4) then
+			rangeUpgradePrice = v
+		elseif(k == 5) then
+			strengthLevel = v
+		elseif(k == 6) then
+			strengthUpgradePrice = v
+		elseif(k == 7) then
+			frequencyLevel = v
+		elseif(k == 8) then
+			frequencyUpgradePrice = v
+		end
+	end
+
+	if(request == "towerType") then
+		return towerType
+	elseif(request == "towerValue") then
+		return towerValue
+	elseif(request == "rangeLevel") then
+		return rangeLevel
+	elseif(request == "rangeUpgradePrice") then
+		return rangeUpgradePrice
+	elseif(request == "strengthLevel") then
+		return strengthLevel
+	elseif(request == "strengthUpgradePrice") then
+		return strengthUpgradePrice
+	elseif(request == "frequencyLevel") then
+		return frequencyLevel
+	elseif(request == "frequencyUpgradePrice") then
+		return frequencyUpgradePrice
+	else
+		print("Invalid request")
+		return 0
+	end
+
+
+end
+	
+function displayTowerUpgrades(self)
+
+	-- Displays price of tower
+	local priceOfTower = getTowerInfo(self, "towerValue")
+	local priceToSellTower = gui.get_node("sell tower price")
+	local sellTowerText = "+$" .. priceOfTower
+	gui.set_text(priceToSellTower, sellTowerText)
+	
+	-- Displays range level and price to upgrade
+	-- Level
+	local rangeLevel = gui.get_node("range level")
+	local levelOfRange = "Level " .. getTowerInfo(self, "rangeLevel")
+	gui.set_text(rangeLevel, levelOfRange)
+	-- Upgrade
+	local rangePrice = gui.get_node("upgrade range price")
+	local priceToUpgradeRange = "-$" .. getTowerInfo(self, "rangeUpgradePrice")
+	gui.set_text(rangePrice, priceToUpgradeRange)
+
+	-- Displays strength level and price to upgrade
+	-- Level
+	local strengthLevel = gui.get_node("strength level")
+	local levelOfStrength = "Level " .. getTowerInfo(self, "strengthLevel")
+	gui.set_text(strengthLevel, levelOfStrength)
+	-- Upgrade
+	local strengthPrice = gui.get_node("upgrade strength price")
+	local priceToUpgradeStrength = "-$" .. getTowerInfo(self, "strengthUpgradePrice")
+	gui.set_text(strengthPrice, priceToUpgradeStrength)
+	
+	-- Displays frequency level and price to upgrade
+	-- Level
+	local frequencyLevel = gui.get_node("frequency level")
+	local levelOfFrequency = "Level " .. getTowerInfo(self, "frequencyLevel")
+	gui.set_text(frequencyLevel, levelOfFrequency)
+	-- Upgrade
+	local frequencyPrice = gui.get_node("upgrade frequency price")
+	local priceToUpgradeFrequency = "-$" .. getTowerInfo(self, "frequencyUpgradePrice")
+	gui.set_text(frequencyPrice, priceToUpgradeFrequency)
+	
+end
+
+function spendMoney(self, amount)
+	-- Gets players money as numerical value
+	io.input("playerMoney.txt")   -- Opens the file in read mode
+	playerMoney = tonumber(io.read())
+	io.close()
+
+	-- Takes away money
+	local file = io.open("playerMoney.txt", "w")
+	file:write(playerMoney - amount)
+	file:close()
+
+	-- Updates this to the user
+	displayPlayerMoney(self)
+end
+
+function gainMoney(self, amount)
+	-- Gets players money as numerical value
+	io.input("playerMoney.txt")   -- Opens the file in read mode
+	playerMoney = tonumber(io.read())
+	io.close()
+
+	-- Takes away money
+	local file = io.open("playerMoney.txt", "w")
+	file:write(playerMoney + amount)
+	file:close()
+
+	-- Updates this to the user
+	displayPlayerMoney(self)
+	
+end
+
+function upgradeTowerSkill(self, request)
+
+	if(request == "range") then
+		msg.post(currentTower, "upgrade_range")
+		local priceToUpgrade = getTowerInfo(self, "rangeUpgradePrice")
+		spendMoney(self, priceToUpgrade)
+		print("range spent")
+	
+	elseif(request == "strength") then
+		msg.post(currentTower, "upgrade_strength")
+		local priceToUpgrade = getTowerInfo(self, "strengthUpgradePrice")
+		spendMoney(self, priceToUpgrade)
+		print("strong")
+
+	elseif(request == "frequency") then
+		msg.post(currentTower, "upgrade_frequency")
+		local priceToUpgrade = getTowerInfo(self, "frequencyUpgradePrice")
+		spendMoney(self, priceToUpgrade)
+
+	end
+	
+	-- Update all info
+	displayTowerUpgrades(self)
+	
+end
+
+function init(self)
+	msg.post(".","acquire_input_focus") -- This component is awaiting input
+	currentTower = ""
+	
+	purchaseInProcess = false
+	chosenTower = ""
+	
+	-- Timer
+	self.timer = 0
+	minutes = 0
+	roundNumber = 1
+	
+	-- Sets players money 
+	local moneyFile = io.open("playerMoney.txt", "w")
+	moneyFile:write(0)
+	moneyFile:close()
+	
+	-- Sets prices for the towers
+	local towerFile = io.open("towerPrices.txt", "w")
+	towerFile:write(100)
+	towerFile:write("\n".. 20)
+	towerFile:write("\n".. 50)
+	towerFile:close()
+
+	-- sets hp to full
+	local hpFile = io.open("playerHP.txt", "w")
+	hpFile:write(100)
+	hpFile:close()
+
+	openMainDisplay(self)
+	displayPlayerMoney(self)
+	displayTowerPrices(self)
+	displayHP(self)
+
+end
+
+function on_input(self, action_id, action)
+
+	-- Shared UI ----------------------
+
+	-- Back button --
+	if(action_id == hash("click") and action.released == true) and (purchaseInProcess == false) then   -- If the user clicks and releases
+		local backButton = gui.get_node("back button")
+		if(gui.pick_node(backButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+			openMainDisplay(self)
+			print("You clicked to go back to main display")
+		end
+	end
+
+	-- Dollar button --
+	if(action_id == hash("click") and action.released == true) and (purchaseInProcess == false) then   -- If the user clicks and releases
+		local moneyButton = gui.get_node("money button")
+		if(gui.pick_node(moneyButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+			print("You clicked to open tower purchase")
+			openTowerPurchase(self)
+		end
+	end
+
+	-- Pause button --
+	if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+		local pauseButton = gui.get_node("pause button")
+		if(gui.pick_node(pauseButton,action.x,action.y)) and (purchaseInProcess == false) then    -- Tests whether the action (the user clicking) occured within thebutton
+			print("You clicked to pause")
+			openPauseMenu(self)
+		end
+	end
+	-------------------------------------
+
+	-- Tower options UI -----------------------
+
+	if(towerOptionsOpened == true) then
+		-- Sell tower --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local sellTowerButton = gui.get_node("sell tower button")
+			if(gui.pick_node(sellTowerButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+				print("You clicked to sell your tower")
+				-- Gets the price of the tower
+				towerPrice = getTowerInfo(self, "towerValue")
+				-- Takes this amount from the players money
+				gainMoney(self, towerPrice)
+				-- Deletes the tower and returns to main display
+				msg.post(currentTower, "sell_tower")
+				openMainDisplay(self)
+			end
+		end
+		
+		-- Upgrade frequency --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local upgradeFrequencyButton = gui.get_node("frequency button")
+			if(gui.pick_node(upgradeFrequencyButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(getTowerInfo(self, "frequencyUpgradePrice"))) then
+					upgradeTowerSkill(self, "frequency")
+					displayTowerUpgrades(self)
+				end
+			end
+		end
+
+		-- Upgrade strength --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local upgradeStrengthButton = gui.get_node("strength button")
+			if(gui.pick_node(upgradeStrengthButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(getTowerInfo(self, "strengthUpgradePrice"))) then
+					upgradeTowerSkill(self, "strength")
+					displayTowerUpgrades(self)
+				end
+			end
+		end
+
+		-- Upgrade range --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local upgradeRangeButton = gui.get_node("range button")
+			if(gui.pick_node(upgradeRangeButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within the button
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(getTowerInfo(self, "rangeUpgradePrice"))) then
+					upgradeTowerSkill(self, "range")
+					displayTowerUpgrades(self)
+				end
+			end
+		end
+		
+	end
+
+	-- Tower purchase UI -----------------------
+	if(towerPurchaseOpened == true) and (purchaseInProcess == false) then
+		-- Buy missile --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local missileButton = gui.get_node("missile button")
+			if(gui.pick_node(missileButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within thebutton
+				print("You clicked to buy a missile")
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(missilePrice)) then
+					print("You clicked to buy a missile")
+					displayTowerPrices(self)
+					spendMoney(self, missilePrice)
+
+					-- Missile placement --
+
+					-- User cannot use GUI until purchase is complete
+					purchaseInProcess = true 
+
+					-- The user has chosen to buy a misile --
+					chosenTower = "missile"
+				end
+			end
+		end
+		
+		-- Buy SMG --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local smgButton = gui.get_node("smg button")
+			if(gui.pick_node(smgButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within thebutton
+				print("You clicked to buy an smg")
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(smgPrice)) then
+					print("You clicked to buy a missile")
+					displayTowerPrices(self)
+					spendMoney(self, smgPrice)
+
+					-- Place smg goes here
+
+					-- User cannot use GUI until purchase is complete
+					purchaseInProcess = true 
+
+					-- The user has chosen to buy a misile --
+					chosenTower = "smg"
+				end
+				
+			end
+		end
+
+		-- Buy rifle --
+		if(action_id == hash("click") and action.released == true) then   -- If the user clicks and releases
+			local rifleButton = gui.get_node("rifle button")
+			if(gui.pick_node(rifleButton,action.x,action.y)) then    -- Tests whether the action (the user clicking) occured within thebutton
+				print("You clicked to buy a rifle")
+				-- Checking that the player has sufficient funds --
+				io.input("playerMoney.txt")   -- Opens the file in read mode
+				playerMoney = tonumber(io.read())
+				io.close()
+
+				if(playerMoney > tonumber(riflePrice)) then
+					print("You clicked to buy a missile")
+					displayTowerPrices(self)
+					spendMoney(self, riflePrice)
+
+					-- Place rifle goes here
+
+					-- User cannot use GUI until purchase is complete
+					purchaseInProcess = true 
+
+					-- The user has chosen to buy a misile --
+					chosenTower = "rifle"
+				end
+			end
+		end
+	end
+end
+
+
+
+function update(self, dt)
+	-- Timer --
+	
+	-- The variable self.timer stores the number of seconds elapsed
+	self.timer = self.timer + dt
+
+	if(math.floor(self.timer) > 9) then
+		seconds = math.floor(self.timer)
+	else	
+		seconds = "0" .. math.floor(self.timer)
+	end
+	
+	if(math.floor(self.timer) == 60) then
+		roundNumber = roundNumber + 1
+		seconds = 0
+		self.timer = 0
+		minutes = minutes + 1
+	end
+
+	if(math.fmod(seconds, 10) == 0) then
+		gainMoney(self, 2)
+	end
+
+	-- Setting the timer
+	local timer = gui.get_node("time elapsed")
+	local timeElapsed = minutes .. ":" .. seconds
+	gui.set_text(timer, timeElapsed)
+
+	-- Updating round number
+	local roundNumberText = gui.get_node("round number")
+	gui.set_text(roundNumberText, roundNumber)
+
+	-- Purchase in process text --
+	local placeTowerText = gui.get_node("place tower text")
+	if(purchaseInProcess == true) then
+		-- Generates text telling user to place a tower --
+		gui.set_visible(placeTowerText, true)
+	else
+		gui.set_visible(placeTowerText, false)
+	end
+
+		
+end
+
+function on_message(self, message_id, message, sender)
+	if(message_id == hash("strong_zombie_attack")) then
+		deductHP(self, 10)  -- HP deduction of 10
+	elseif(message_id == hash("normal_zombie_attack")) then
+		deductHP(self, 5) -- HP deduction of 5
+	elseif(message_id == hash("quick_zombie_attack")) then
+		deductHP(self, 3)  -- HP deduction of 3
+	end
+
+	-- When gui receives message that the purchase is complete
+	if(message_id == hash("purchase_complete")) then
+		-- Sets purchase in process back to false
+		purchaseInProcess = false
+
+		-- Sends back the type of tower the user bought --
+		if(chosenTower == "missile") then
+			msg.post(sender, "place_missile")
+		elseif(chosenTower == "smg") then
+			msg.post(sender, "place_smg")
+		elseif(chosenTower == "rifle") then
+			msg.post(sender, "place_rifle")
+		end
+		
+		-- Resets the type of tower variable --
+		chosenTower = ""
+	end	
+
+	-- When gui receives message to open tower options --
+	if(message_id == hash("open_tower_options")) then
+		currentTower = sender
+		openTowerOptions(self)
+		displayTowerUpgrades(self)
+	end
+
+	-- Updates information about towers --
+	if(message_id == hash("update_tower_stats")) then
+		currentTower = sender
+		openTowerOptions(self)
+		displayTowerUpgrades(self)
+	end
+	
+end
+
+
+
+
++@gameplay system/gameplay system.gui_script" 
