@@ -1,2 +1,3 @@
 *.html linguist-vendored
 *.script linguist-language=Lua
+*.script linguist-detectable
